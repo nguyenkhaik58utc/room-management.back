@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model apartments {
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  name       String  @db.VarChar(45)
+  province_id String @db.VarChar(256)
+  district_id String @db.VarChar(256)
+  ward_id    String @db.VarChar(256)
+  address    String @db.VarChar(256)
+
+  user   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rooms  apartment_rooms[]
+
+  @@map("apartments")
+}
+
+model users {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(100)
+  email String @db.VarChar(256)
+  isVerified  Boolean  @default(false)
+  verifyToken String?  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  apartments apartments[]
+
+  @@map("users")
+}
+
+model apartment_rooms {
+  id             Int    @id @default(autoincrement())
+  apartment_id   Int
+  room_num_bar   String @db.VarChar(45)
+  default_price  BigInt
+  max_tenant     Int
+
+  apartment apartments @relation(fields: [apartment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contracts tenant_contracts[]
+  waterUsages water_usages[]
+  electricityUsages electricity_usages[]
+  feeCollections room_fee_collections[]
+
+  @@map("apartment_rooms")
+}
+
+model water_usages {
+  id                Int      @id @default(autoincrement())
+  apartment_room_id Int
+  usage_number      Int
+  input_date        DateTime
+
+  room apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("water_usages")
+}
+
+model electricity_usages {
+  id                Int      @id @default(autoincrement())
+  apartment_room_id Int
+  usage_number      Int
+  input_date        DateTime
+
+  room apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("electricity_usages")
+}
+
+model tenants {
+  id                Int    @id @default(autoincrement())
+  name              String @db.VarChar(45)
+  tel               String @db.VarChar(45)
+  identity_card_number String @db.VarChar(45)
+  email             String @db.VarChar(256)
+
+  contracts tenant_contracts[]
+  feeCollections room_fee_collections[]
+
+  @@map("tenants")
+}
+
+model tenant_contracts {
+  id                      Int      @id @default(autoincrement())
+  apartment_room_id       Int
+  tenant_id               Int
+  pay_period              Int
+  price                   BigInt
+  electricity_pay_type    Int
+  electricity_price       BigInt
+  electricity_number_start Int
+  water_pay_type          Int
+  water_price             BigInt
+  water_number_start      Int
+  num_of_tenant_current   Int
+  note                    String?
+  start_date              DateTime
+  end_date                DateTime
+
+  tenant tenants @relation(fields: [tenant_id], references: [id])
+  room   apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monthly_costs contract_monthly_costs[]
+  feeCollections room_fee_collections[]
+
+  @@map("tenant_contracts")
+}
+
+model room_fee_collections {
+  id                     Int      @id @default(autoincrement())
+  tenant_contract_id     Int
+  apartment_room_id      Int
+  tenant_id              Int
+  electricity_num_before Int
+  electricity_num_after  Int
+  water_number_before    Int
+  water_number_after     Int
+  charge_date            DateTime
+  total_debt             BigInt
+  total_price            BigInt
+  total_paid             BigInt
+  fee_collection_uuid    String   @db.VarChar(64)
+
+  tenant_contract tenant_contracts @relation(fields: [tenant_contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenant tenants @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  room apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  histories room_fee_collection_histories[]
+
+  @@map("room_fee_collections")
+}
+
+model room_fee_collection_histories {
+  id                   Int      @id @default(autoincrement())
+  room_fee_collection_id Int
+  paid_date            DateTime
+  price                BigInt
+
+  collection room_fee_collections @relation(fields: [room_fee_collection_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("room_fee_collection_histories")
+}
+
+model contract_monthly_costs {
+  id               Int @id @default(autoincrement())
+  tenant_contract_id Int
+  monthly_cost_id  Int
+  pay_type         Int
+  price            BigInt
+
+  tenant_contract tenant_contracts @relation(fields: [tenant_contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monthly_cost monthly_costs @relation(fields: [monthly_cost_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("contract_monthly_costs")
+}
+
+model monthly_costs {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(45)
+
+  contract_monthly_costs contract_monthly_costs[]
+
+  @@map("monthly_costs")
+}
+
+model prefectures {
+  id          Int    @id @default(autoincrement())
+  ward_id     String @db.VarChar(256)
+  ward_name   String @db.VarChar(256)
+  ward_level  String @db.VarChar(256)
+  district_id String @db.VarChar(256)
+  district_name String @db.VarChar(256)
+  province_id String @db.VarChar(256)
+  province_name String @db.VarChar(256)
+
+  @@map("prefectures")
+}
+
+model admins {
+  id           Int    @id @default(autoincrement())
+  admin_uuid   String @db.VarChar(64)
+  admin_login_id String @db.VarChar(64)
+  email        String @db.VarChar(256)
+
+  @@map("admins")
+}
