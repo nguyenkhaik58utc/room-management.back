@@ -16,6 +16,12 @@ CREATE TABLE "public"."users" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "email" VARCHAR(256) NOT NULL,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "verifyToken" TEXT,
+    "resetTokenExp" TIMESTAMP(3),
+    "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -154,6 +160,9 @@ CREATE TABLE "public"."admins" (
 
     CONSTRAINT "admins_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "public"."users"("email");
 
 -- AddForeignKey
 ALTER TABLE "public"."apartments" ADD CONSTRAINT "apartments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
