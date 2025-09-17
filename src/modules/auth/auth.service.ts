@@ -24,7 +24,7 @@ export class AuthService {
       },
     );
     const userEntity = new UserEntity(0, name, email, '', '');
-    userEntity.setPassword(password);
+    await userEntity.setPassword(password);
 
     const user = await this.prisma.users.create({
       data: {
@@ -130,7 +130,7 @@ export class AuthService {
     }
 
     const userEntity = new UserEntity(0, user.name, user.email, '', '');
-    userEntity.setPassword(newPassword);
+    await userEntity.setPassword(newPassword);
 
     await this.prisma.users.update({
       where: { id: user.id },
@@ -158,7 +158,7 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    await this.saveRefreshToken(user.id, refreshToken);
+    await this.saveRefreshToken(user.id as number, refreshToken);
 
     return {
       access_token: accessToken,
