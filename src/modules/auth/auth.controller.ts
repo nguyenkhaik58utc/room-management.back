@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Query, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
-import { LoginUserDto } from '../user/dto/user.dto';
+import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
 
@@ -11,8 +11,9 @@ export class AuthController {
     private userService: UserService,
     private readonly tokenService: TokenService) {}
 
+  @ApiBody({ type: CreateUserDto })
   @Post('register')
-  async register(@Body() body: { email: string; password: string; name: string }) {
+  async register(@Body(new ValidationPipe()) body: CreateUserDto) {
     return this.authService.register(body.email, body.password, body.name);
   }
 

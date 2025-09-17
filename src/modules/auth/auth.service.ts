@@ -23,11 +23,13 @@ export class AuthService {
         expiresIn: '15m',
       },
     );
+    const userEntity = new UserEntity(0, name, email, '', '');
+    userEntity.setPassword(password);
 
     const user = await this.prisma.users.create({
       data: {
         email,
-        password,
+        password: userEntity['password'],
         name,
         verifyToken,
       },
