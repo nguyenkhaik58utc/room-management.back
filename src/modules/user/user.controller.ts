@@ -3,9 +3,9 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
-import { TimeGuard } from 'src/common/guards/common.guards';
-import { CommonInterceptor } from 'src/common/interceptors/common.interceptors';
-import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
+import { TimeGuard } from '../../common/guards/common.guards';
+import { CommonInterceptor } from '../../common/interceptors/common.interceptors';
+import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
 @Controller('api/users')
 @UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth('access-token')
