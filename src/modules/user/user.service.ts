@@ -18,7 +18,7 @@ export class UserService {
   async seedData() {
     const newPassword = 'passw0rd@123';
     const dataSeed = new UserEntity(0, 'Admin', 'admin@example.com', '', '');
-    dataSeed.setPassword(newPassword);
+    await dataSeed.setPassword(newPassword);
     await this.prisma.$transaction(async (tx) => {
       await tx.users.upsert({
         where: { email: 'admin@example.com' },
@@ -40,7 +40,7 @@ export class UserService {
       '',
       ''
     );
-    userEntity.setPassword(createUserDto.password);
+    await userEntity.setPassword(createUserDto.password);
 
     return this.prisma.users.create({
       data: {
@@ -62,7 +62,7 @@ export class UserService {
         '',
         updateUserDto.refreshToken ?? ''
       );
-      userEntity.setPassword(updateUserDto.password);
+      await userEntity.setPassword(updateUserDto.password);
       data.password = userEntity['password'];
     }
 
@@ -101,7 +101,7 @@ export class UserService {
       user.verifyToken??""
     );
 
-    const isValid = userEntity.checkPassword(password);
+    const isValid = await userEntity.checkPassword(password);
     if (!isValid) throw new UnauthorizedException('Invalid password');
 
     return {

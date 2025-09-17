@@ -1,10 +1,4 @@
-import { readFileSync } from 'fs';
-import { publicEncrypt, privateDecrypt } from 'crypto';
-import path from 'path';
-const publicKeyPath = path.join(__dirname, '../../../..', 'public.pem');
-const privateKeyPath = path.join(__dirname, '../../../..', 'private.pem');
-const PUBLIC_KEY = readFileSync(publicKeyPath, 'utf8');
-const PRIVATE_KEY = readFileSync(privateKeyPath, 'utf8');
+import bcrypt from 'bcrypt';
 
 export class UserEntity {
   constructor(
@@ -12,16 +6,18 @@ export class UserEntity {
     public name: string,
     public email: string,
     private password: string,
-    private refreshToken: string 
+    private refreshToken: string,
   ) {}
 
-  setPassword(password: string) {
-    const buffer = Buffer.from(password, 'utf8');
-    this.password = publicEncrypt(PUBLIC_KEY, buffer).toString('base64');
+  async setPassword(password: string) {
+    const saltRounds = 12;
+    this.password = await bcrypt.hash(password, saltRounds);
   }
 
-  checkPassword(password: string): boolean {
-    const decrypted = privateDecrypt(PRIVATE_KEY, Buffer.from(this.password, 'base64')).toString('utf8');
-    return password === decrypted;
+  async checkPassword(password: string): Promise<boolean> {
+    if (!this.password) {
+      throw new Error('Password has not been set');
+    }
+    return await bcrypt.compare(password, this.password);
   }
 }
