@@ -1,16 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
-import { randomBytes } from 'crypto';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entities/user.model';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private readonly configService: ConfigService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    private readonly userService: UserService,
+  ) {}
 
   async register(email: string, password: string, name: string) {
-    const verifyToken = randomBytes(32).toString('hex');
+    const verifyToken = this.jwtService.sign(
+      { name: name, email: email, password: password },
+      {
+        secret: process.env.JWT_KEY ?? 'xxx',
+        expiresIn: '15m',
+      },
+    );
 
     const user = await this.prisma.users.create({
       data: {
@@ -34,8 +46,8 @@ export class AuthService {
         pass: process.env.EMAIL_PASS,
       },
     });
-
-    const verifyUrl = `http://localhost:3000/auth/verify?token=${token}`;
+    const appUrl = this.configService.get<string>('APP_URL');
+    const verifyUrl = `${appUrl}/auth/verify?token=${token}`;
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -63,18 +75,24 @@ export class AuthService {
     return { message: 'Success.' };
   }
   async forgotPassword(email: string) {
-    const user = await this.prisma.users.findUnique({ where: { email: email } });
+    const user = await this.prisma.users.findUnique({
+      where: { email: email },
+    });
     if (!user) {
       throw new Error('Email invalid');
     }
 
-    const resetToken = randomBytes(32).toString('hex');
-    const expire = new Date();
-    expire.setHours(expire.getHours() + 1);
+    const resetToken = this.jwtService.sign(
+      { email: email },
+      {
+        secret: process.env.JWT_KEY ?? 'xxx',
+        expiresIn: '15m',
+      },
+    );
 
     await this.prisma.users.update({
       where: { id: user.id },
-      data: { verifyToken: resetToken, resetTokenExp: expire },
+      data: { verifyToken: resetToken },
     });
 
     const transporter = nodemailer.createTransport({
@@ -102,7 +120,6 @@ export class AuthService {
     const user = await this.prisma.users.findFirst({
       where: {
         verifyToken: token,
-        resetTokenExp: { gt: new Date() },
       },
     });
 
@@ -110,13 +127,45 @@ export class AuthService {
       throw new Error('Token invalid or expired');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const userEntity = new UserEntity(0, user.name, user.email, '', '');
+    userEntity.setPassword(newPassword);
 
     await this.prisma.users.update({
       where: { id: user.id },
-      data: { password: hashedPassword, verifyToken: null, resetTokenExp: null },
+      data: {
+        password: userEntity['password'],
+        verifyToken: null,
+      },
     });
 
     return { message: 'Reset success.' };
+  }
+
+  async saveRefreshToken(userId: number, token: string) {
+    await this.userService.updateUser(userId, { refreshToken: token });
+  }
+
+  async login(user: any) {
+    const accessToken = this.jwtService.sign(user, {
+      secret: process.env.JWT_KEY ?? 'xxx',
+      expiresIn: '15m',
+    });
+
+    const refreshToken = this.jwtService.sign(user, {
+      secret: process.env.JWT_KEY ?? 'xxx',
+      expiresIn: '7d',
+    });
+
+    await this.saveRefreshToken(user.id, refreshToken);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      ...user,
+    };
+  }
+
+  async logout(userId: number) {
+    await this.userService.updateUser(userId, { refreshToken: '' });
   }
 }

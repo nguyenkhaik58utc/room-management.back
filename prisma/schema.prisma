@@ -34,8 +34,8 @@ model users {
   email String @db.VarChar(256) @unique
   isVerified  Boolean  @default(false)
   verifyToken String? 
-  resetTokenExp DateTime? 
-  password String?  
+  refreshToken String?
+  password String  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
