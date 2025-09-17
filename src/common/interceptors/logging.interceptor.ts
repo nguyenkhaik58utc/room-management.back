@@ -26,10 +26,13 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const appName = 'room-management';
     const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const logFile = path.join(this.logDir, `${appName}-${dateStr}.log`);
+    //const logFile = path.join(this.logDir, `${appName}-${dateStr}.log`);
 
+    // const writeLog = (message: string) => {
+    //   fs.appendFileSync(logFile, message + '\n', 'utf8');
+    // };
     const writeLog = (message: string) => {
-      fs.appendFileSync(logFile, message + '\n', 'utf8');
+      console.log(`[${appName}-${dateStr}] ${message}`);
     };
 
     writeLog(`[Request] ${method} ${url} - body: ${JSON.stringify(req.body)}`);
