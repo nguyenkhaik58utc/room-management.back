@@ -5,7 +5,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
@@ -13,9 +13,9 @@ export class LoggingInterceptor implements NestInterceptor {
   private readonly logDir = path.join(__dirname, '../../../logs'); // folder logs
 
   constructor() {
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
-    }
+    // if (!fs.existsSync(this.logDir)) {
+    //   fs.mkdirSync(this.logDir, { recursive: true });
+    // }
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
