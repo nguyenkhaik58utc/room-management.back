@@ -1,9 +1,10 @@
-import { Controller, Post, Body, Get, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, ValidationPipe, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
+import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -18,8 +19,19 @@ export class AuthController {
   }
 
   @Get('verify')
-  async verify(@Query('token') token: string) {
-    return this.authService.verifyAccount(token);
+  async verify(@Query('token') token: string, @Res() res: Response) {
+    try{
+    const isValid = await this.authService.verifyAccount(token);
+    if (isValid) {
+        return res.redirect(302, '/login?verified=true');
+      } else {
+        return res.redirect(302, '/login?error=invalid_token');
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    catch (error) {
+      return res.redirect(302, '/login?error=server_error');
+    }
   }
   
   @Post('forgot-password')

@@ -92,6 +92,7 @@ export class UserService {
   async validateUser(email: string, password: string) {
     const user = await this.prisma.users.findUnique({ where: { email } });
     if (!user) throw new NotFoundException('User not found');
+    if (!user.isVerified) throw new NotFoundException('Unverified user');
 
     const userEntity = new UserEntity(
       user.id,

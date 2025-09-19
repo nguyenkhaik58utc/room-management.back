@@ -60,13 +60,13 @@ export class AuthService {
     });
   }
 
-  async verifyAccount(token: string) {
+  async verifyAccount(token: string): Promise<boolean> {
     const user = await this.prisma.users.findFirst({
       where: { verifyToken: token },
     });
 
     if (!user) {
-      throw new Error('Token invalid');
+      return false
     }
 
     await this.prisma.users.update({
@@ -74,7 +74,7 @@ export class AuthService {
       data: { isVerified: true, verifyToken: null },
     });
 
-    return { message: 'Success.' };
+    return true;
   }
   async forgotPassword(email: string) {
     const user = await this.prisma.users.findUnique({
