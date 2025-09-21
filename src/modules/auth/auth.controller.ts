@@ -5,11 +5,13 @@ import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
 import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService,
     private userService: UserService,
+    private readonly configService: ConfigService,
     private readonly tokenService: TokenService) {}
 
   @ApiBody({ type: CreateUserDto })
@@ -22,15 +24,16 @@ export class AuthController {
   async verify(@Query('token') token: string, @Res() res: Response) {
     try{
     const isValid = await this.authService.verifyAccount(token);
+    const appUrl = this.configService.get<string>('APP_FRONT_URL');
     if (isValid) {
-        return res.redirect(302, '/login?verified=true');
+        return res.redirect(302, `${appUrl}/login?verified=true`);
       } else {
-        return res.redirect(302, '/login?error=invalid_token');
+        return res.redirect(302, `${appUrl}/login?error=invalid_token`);
       }
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     catch (error) {
-      return res.redirect(302, '/login?error=server_error');
+      return res.redirect(302, `${appUrl}/login?error=server_error`);
     }
   }
   

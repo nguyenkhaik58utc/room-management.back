@@ -48,7 +48,7 @@ export class AuthService {
         pass: process.env.EMAIL_PASS,
       },
     });
-    const appUrl = this.configService.get<string>('APP_FRONT_URL');
+    const appUrl = this.configService.get<string>('APP_URL');
     const verifyUrl = `${appUrl}/auth/verify?token=${token}`;
 
     await transporter.sendMail({
