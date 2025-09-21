@@ -105,7 +105,7 @@ export class AuthService {
       },
     });
     const appUrl = this.configService.get<string>('APP_URL');
-    const resetUrl = `${appUrl}/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `${appUrl}/auth/forgot-password?token=${resetToken}`;
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
