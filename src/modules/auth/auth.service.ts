@@ -104,7 +104,7 @@ export class AuthService {
         pass: process.env.EMAIL_PASS,
       },
     });
-    const appUrl = this.configService.get<string>('APP_URL');
+    const appUrl = this.configService.get<string>('APP_FRONT_URL');
     const resetUrl = `${appUrl}/auth/forgot-password?token=${resetToken}`;
 
     await transporter.sendMail({
