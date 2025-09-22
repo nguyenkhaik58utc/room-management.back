@@ -7,7 +7,7 @@ import { TokenService } from '../token/token.service';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService,
     private userService: UserService,
@@ -22,9 +22,9 @@ export class AuthController {
 
   @Get('verify')
   async verify(@Query('token') token: string, @Res() res: Response) {
+    const appUrl = this.configService.get<string>('APP_FRONT_URL');
     try{
     const isValid = await this.authService.verifyAccount(token);
-    const appUrl = this.configService.get<string>('APP_FRONT_URL');
     if (isValid) {
         return res.redirect(302, `${appUrl}/login?verified=true`);
       } else {

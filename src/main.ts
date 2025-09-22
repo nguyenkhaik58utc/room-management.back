@@ -22,6 +22,17 @@ async function bootstrap() {
     .setTitle('Product API')
     .setDescription('CRUD Product (in-memory) với Swagger')
     .setVersion('1.0.0')
+    .addBearerAuth(
+    {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Authorization',
+      description: 'Nhập JWT token',
+      in: 'header',
+    },
+    'access-token',
+  )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
