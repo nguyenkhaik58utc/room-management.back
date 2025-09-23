@@ -1,12 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateApartmentDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ example: '1' })
-  user_id: number;
-  
+export class CreateApartmentDto {  
   @IsString()
   @IsNotEmpty()
   @MaxLength(45)

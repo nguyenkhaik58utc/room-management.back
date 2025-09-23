@@ -25,6 +25,10 @@ model apartments {
   user   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   rooms  apartment_rooms[]
 
+  province provinces   @relation(fields: [province_id], references: [province_id])
+  district districts   @relation(fields: [district_id], references: [district_id])
+  ward     wards       @relation(fields: [ward_id], references: [ward_id])
+
   @@map("apartments")
 }
 
@@ -196,4 +200,40 @@ model admins {
   email        String @db.VarChar(256)
 
   @@map("admins")
+}
+
+model provinces {
+  id           Int       @id @default(autoincrement())
+  province_id  String    @db.VarChar(256) @unique
+  name         String    @db.VarChar(256)
+
+  districts districts[]
+  apartments  apartments[]
+
+  @@map("provinces")
+}
+
+model districts {
+  id           Int       @id @default(autoincrement())
+  district_id  String    @db.VarChar(256) @unique
+  name         String    @db.VarChar(256)
+  province_id  String    @db.VarChar(256)
+
+  province provinces @relation(fields: [province_id], references: [province_id], onDelete: Cascade, onUpdate: Cascade)
+  wards    wards[]
+  apartments  apartments[]
+
+  @@map("districts")
+}
+
+model wards {
+  id           Int       @id @default(autoincrement())
+  ward_id      String    @db.VarChar(256) @unique
+  name         String    @db.VarChar(256)
+  district_id  String    @db.VarChar(256)
+  apartments  apartments[]
+
+  district districts @relation(fields: [district_id], references: [district_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("wards")
 }
