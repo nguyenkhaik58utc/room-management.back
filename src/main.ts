@@ -16,7 +16,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'https://room-management-back.vercel.app',
-      'https://room-management-front.vercel.app',
+      'https://room-managemnet-front.vercel.app',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
