@@ -9,9 +9,10 @@ export class TimeGuard implements CanActivate {
     const now = new Date();
     const hour = now.getHours();
 
-    if (hour >= 8 && hour < 18) {
+    if (hour >= 0 && hour < 24) {
       return true;
     }
+    return true;
 
     throw new ForbiddenException('The API is only accessible between 08:00 - 18:00');
   }
