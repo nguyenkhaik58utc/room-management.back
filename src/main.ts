@@ -5,10 +5,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { CommonInterceptor } from './common/interceptors/common.interceptors';
 import cookieParser from 'cookie-parser';
+import { BigIntInterceptor } from './common/interceptors/bigInt.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalInterceptors(new CommonInterceptor(), new LoggingInterceptor());
+  app.useGlobalInterceptors(new CommonInterceptor(), new LoggingInterceptor(), new BigIntInterceptor());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.use(cookieParser());
   app.enableCors({

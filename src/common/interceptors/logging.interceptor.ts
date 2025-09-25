@@ -38,11 +38,10 @@ export class LoggingInterceptor implements NestInterceptor {
     writeLog(`[Request] ${method} ${url} - body: ${JSON.stringify(req.body)}`);
 
     return next.handle().pipe(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       tap((data) => {
         writeLog(
-          `[Response] ${method} ${url} - ${Date.now() - now}ms - response: ${JSON.stringify(
-            data,
-          )}`,
+          `[Response] ${method} ${url} - ${Date.now() - now}ms`,
         );
       }),
     );

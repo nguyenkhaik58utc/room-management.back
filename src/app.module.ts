@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ApartmentModule } from './modules/apartment/apartment.module';
 import { AddressModule } from './modules/address/address.module';
+import { RoomApartmentModule } from './modules/apartment/room-apartment/room-apartment.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AddressModule } from './modules/address/address.module';
     UserModule,
     AddressModule,
     ApartmentModule,
+    RoomApartmentModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
