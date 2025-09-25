@@ -74,8 +74,8 @@ export class AuthController {
 
     res.cookie('refresh_token', result.refresh_token, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: process.env.COOKIE_SECURE === 'true',
+      sameSite: (process.env.COOKIE_SAMESITE as 'none' | 'lax' | 'strict') ?? "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
