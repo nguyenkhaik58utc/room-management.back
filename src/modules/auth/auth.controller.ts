@@ -6,6 +6,7 @@ import {
   Query,
   ValidationPipe,
   Res,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
@@ -71,7 +72,7 @@ export class AuthController {
 
     const result = await this.authService.login(user);
 
-    res.cookie('refresh_token', result.refreshToken, {
+    res.cookie('refresh_token', result.refresh_token, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
@@ -87,11 +88,12 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() body: any) {
-    const { refresh_token } = body;
-
+  async refresh(@Req() req: any) {
+    const refresh_token = req.cookies['refresh_token'];
+    console.log('Refresh token from cookie:', refresh_token);
     try {
       const payload = this.tokenService.verifyRefreshToken(refresh_token);
+      console.log('Payload from refresh token:', payload);
       const user = await this.userService.getUserIfRefreshTokenMatches(
         payload.id,
         refresh_token,
@@ -100,6 +102,7 @@ export class AuthController {
       if (!user) {
         return { error: 'Invalid refresh token' };
       }
+      console.log('User found for refresh token:', user);
 
       const newAccessToken = this.tokenService.generateAccessToken(payload);
 

@@ -29,6 +29,11 @@ export class ApartmentService {
     return this.prisma.apartments.update({
       where: { id },
       data,
+      include:{
+        province: true,
+        district: true,
+        ward: true
+      }
     });
   }
 

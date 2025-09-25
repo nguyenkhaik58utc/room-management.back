@@ -61,6 +61,7 @@ model apartment_rooms {
   electricityUsages electricity_usages[]
   feeCollections room_fee_collections[]
 
+  @@unique([apartment_id, room_num_bar])
   @@map("apartment_rooms")
 }
 
@@ -91,7 +92,7 @@ model tenants {
   name              String @db.VarChar(45)
   tel               String @db.VarChar(45)
   identity_card_number String @db.VarChar(45)
-  email             String @db.VarChar(256)
+  email             String @db.VarChar(256) @unique
 
   contracts tenant_contracts[]
   feeCollections room_fee_collections[]

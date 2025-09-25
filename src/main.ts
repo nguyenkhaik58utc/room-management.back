@@ -4,12 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { CommonInterceptor } from './common/interceptors/common.interceptors';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new CommonInterceptor(), new LoggingInterceptor());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  
+  app.use(cookieParser());
   app.enableCors({
     origin: [
       'http://localhost:3000',

@@ -150,7 +150,7 @@ export class AuthService {
   async login(user: any) {
     const accessToken = this.jwtService.sign(user, {
       secret: process.env.JWT_KEY ?? 'xxx',
-      expiresIn: '15m',
+      expiresIn: '1m',
     });
 
     const refreshToken = this.jwtService.sign(user, {

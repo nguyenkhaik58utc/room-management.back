@@ -113,7 +113,7 @@ export class UserService {
   }
   async getUserIfRefreshTokenMatches(userId: number, refreshToken: string) {
     const user = await this.prisma.users.findUnique({ where: { id: userId } });
-    if (!user || !user.verifyToken || user.verifyToken !== refreshToken) return null;
+    if (!user || !user.refreshToken || user.refreshToken !== refreshToken) return null;
     return user;
   };
 }
