@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +16,14 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, name: string) {
+    const userExists = await this.prisma.users.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    if (userExists) {
+      throw new ConflictException('Users already exists');
+    }
     const verifyToken = this.jwtService.sign(
       { name: name, email: email, password: password },
       {
@@ -66,7 +74,7 @@ export class AuthService {
     });
 
     if (!user) {
-      return false
+      return false;
     }
 
     await this.prisma.users.update({

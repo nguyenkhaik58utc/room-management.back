@@ -29,6 +29,9 @@ model apartments {
   district districts   @relation(fields: [district_id], references: [district_id])
   ward     wards       @relation(fields: [ward_id], references: [ward_id])
 
+  thumbnail   String?    @db.VarChar(512) 
+  gallery     String[]   @db.VarChar(1024) 
+
   @@map("apartments")
 }
 
@@ -60,6 +63,9 @@ model apartment_rooms {
   waterUsages water_usages[]
   electricityUsages electricity_usages[]
   feeCollections room_fee_collections[]
+
+  thumbnail   String?    @db.VarChar(512) 
+  gallery     String[]   @db.VarChar(1024)
 
   @@unique([apartment_id, room_num_bar])
   @@map("apartment_rooms")
