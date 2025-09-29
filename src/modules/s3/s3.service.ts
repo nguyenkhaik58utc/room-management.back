@@ -19,8 +19,7 @@ export class S3Service {
         Bucket: bucket,
         Key: key,
         Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: 'public-read'
+        ContentType: file.mimetype
       }),
     );
 
