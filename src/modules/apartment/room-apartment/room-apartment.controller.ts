@@ -48,7 +48,7 @@ export class RoomApartmentController {
     ])
   )
   async create(
-    @Body(new ValidationPipe()) createRoomApartmentDto: CreateRoomApartmentDto,
+    @Body(new ValidationPipe({ transform: true })) createRoomApartmentDto: CreateRoomApartmentDto,
     @UploadedFiles()
     files: {
       thumbnails?: Express.Multer.File[];
@@ -110,7 +110,7 @@ export class RoomApartmentController {
   )
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ValidationPipe()) updateRoomApartmentDto: UpdateRoomApartmentDto,
+    @Body(new ValidationPipe({ transform: true })) updateRoomApartmentDto: UpdateRoomApartmentDto,
     @UploadedFiles()
     files: {
       thumbnails?: Express.Multer.File[];
