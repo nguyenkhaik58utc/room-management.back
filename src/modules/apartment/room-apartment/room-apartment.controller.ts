@@ -87,13 +87,13 @@ export class RoomApartmentController {
     return await this.roomApartmentService.createApartment(RoomApartmentDto);
   }
 
-  @Get(':id')
+  @Get('/apartment/:id')
   @ApiParam({ name: 'id', type: Number })
   async findAllByID(@Param('id', ParseIntPipe) id: number) {
     return await this.roomApartmentService.getAllRoomApartmentById(id);
   }
 
-  @Get(':id')
+  @Get('/room/:id')
   @ApiParam({ name: 'id', type: Number })
   async findByID(@Param('id', ParseIntPipe) id: number) {
     return await this.roomApartmentService.getRoomApartmentById(id);
