@@ -13,11 +13,9 @@ export class AuthMiddleware implements NestMiddleware {
     if (!token) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    console.log('Token:', token);
     try {
       const user = await this.tokenService.verifyAccessToken(token);
       req['user'] = user;
-      console.log('Authenticated user:', user);
       next();
     } catch (err) {
       return res.status(401).json({ message: 'Invalid token: ' + err.message });

@@ -148,7 +148,7 @@ export class RoomApartmentController {
     }
     return await this.roomApartmentService.updateRoomApartment(
       id,
-      updateRoomApartmentDto,
+      RoomApartmentDto,
     );
   }
 

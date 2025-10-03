@@ -2,6 +2,7 @@ import { S3Service } from './../../s3/s3.service';
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import {
@@ -47,7 +48,9 @@ export class RoomApartmentService {
       for (const gallery of createRoomApartmentDto.galleries || []) {
         await this.s3Service.deleteFile(process.env.AWS_S3_BUCKET!, gallery);
       }
-      throw new Error(`Create apartment failed: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Create apartment failed: ${error.message}`,
+      );
     }
   }
 
@@ -81,7 +84,8 @@ export class RoomApartmentService {
       const galleriesOld = roomExists?.gallery || [];
 
       const data: any = { ...updateRoomApartmentDto };
-      const result = this.prisma.apartment_rooms.update({
+      console.log('Data to update:', data);
+      const result = await this.prisma.apartment_rooms.update({
         where: { id },
         data: {
           apartment_id: data.apartment_id,
@@ -117,7 +121,9 @@ export class RoomApartmentService {
       for (const gallery of updateRoomApartmentDto.galleries || []) {
         await this.s3Service.deleteFile(process.env.AWS_S3_BUCKET!, gallery);
       }
-      throw new Error(`Create apartment failed: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Update apartment failed: ${error.message}`,
+      );
     }
   }
 

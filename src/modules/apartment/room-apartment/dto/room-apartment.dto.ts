@@ -1,10 +1,12 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class RoomApartmentBaseDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({ example: '' })
+  @Type(() => Number)
   apartment_id: number;
 
   @IsString()
@@ -16,11 +18,13 @@ export class RoomApartmentBaseDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({ example: '' })
+  @Type(() => Number)
   default_price: number;
 
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({ example: '' })
+  @Type(() => Number)
   max_tenant: number;
 
   @IsOptional()
