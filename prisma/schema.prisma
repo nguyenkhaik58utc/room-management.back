@@ -59,7 +59,7 @@ model apartment_rooms {
   max_tenant     Int
 
   apartment apartments @relation(fields: [apartment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  contracts tenant_contracts[]
+  contracts contracts[]
   waterUsages water_usages[]
   electricityUsages electricity_usages[]
   feeCollections room_fee_collections[]
@@ -94,46 +94,63 @@ model electricity_usages {
 }
 
 model tenants {
-  id                Int    @id @default(autoincrement())
-  name              String @db.VarChar(45)
-  tel               String @db.VarChar(45)
-  identity_card_number String @db.VarChar(45)
-  email             String @db.VarChar(256) @unique
+  id                   Int     @id @default(autoincrement())
+  name                 String  @db.VarChar(45)
+  tel                  String  @db.VarChar(45)
+  identity_card_number String  @db.VarChar(45)
+  email                String  @db.VarChar(256) @unique
 
-  contracts tenant_contracts[]
+  contractTenants contract_tenants[]
+
   feeCollections room_fee_collections[]
 
   @@map("tenants")
 }
 
-model tenant_contracts {
-  id                      Int      @id @default(autoincrement())
-  apartment_room_id       Int
-  tenant_id               Int
-  pay_period              Int
-  price                   BigInt
-  electricity_pay_type    Int
-  electricity_price       BigInt
-  electricity_number_start Int
-  water_pay_type          Int
-  water_price             BigInt
-  water_number_start      Int
-  num_of_tenant_current   Int
-  note                    String?
-  start_date              DateTime
-  end_date                DateTime
+model contracts {
+  id                        Int      @id @default(autoincrement())
+  apartment_room_id         Int
+  pay_period                Int
+  price                     BigInt
+  electricity_pay_type      Int
+  electricity_price         BigInt
+  electricity_number_start  Int
+  water_pay_type            Int
+  water_price               BigInt
+  water_number_start        Int
+  num_of_tenant_current     Int
+  note                      String?
+  start_date                DateTime
+  end_date                  DateTime
+  status                    String   @default("active") // active | expired | canceled
+  electricityImage          String?    @db.VarChar(512) 
+  waterImage                String?    @db.VarChar(512)
 
-  tenant tenants @relation(fields: [tenant_id], references: [id])
-  room   apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  room apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  tenants contract_tenants[]
+
   monthly_costs contract_monthly_costs[]
   feeCollections room_fee_collections[]
 
-  @@map("tenant_contracts")
+  @@map("contracts")
+}
+
+model contract_tenants {
+  id             Int     @id @default(autoincrement())
+  contract_id    Int
+  tenant_id      Int
+
+  tenant   tenants          @relation(fields: [tenant_id], references: [id])
+  contract contracts @relation(fields: [contract_id], references: [id])
+
+  @@unique([contract_id, tenant_id])
+  @@map("contract_tenants")
 }
 
 model room_fee_collections {
   id                     Int      @id @default(autoincrement())
-  tenant_contract_id     Int
+  contract_id     Int
   apartment_room_id      Int
   tenant_id              Int
   electricity_num_before Int
@@ -146,7 +163,7 @@ model room_fee_collections {
   total_paid             BigInt
   fee_collection_uuid    String   @db.VarChar(64)
 
-  tenant_contract tenant_contracts @relation(fields: [tenant_contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contract contracts @relation(fields: [contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tenant tenants @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   room apartment_rooms @relation(fields: [apartment_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   histories room_fee_collection_histories[]
@@ -167,12 +184,12 @@ model room_fee_collection_histories {
 
 model contract_monthly_costs {
   id               Int @id @default(autoincrement())
-  tenant_contract_id Int
+  contract_id Int
   monthly_cost_id  Int
   pay_type         Int
   price            BigInt
 
-  tenant_contract tenant_contracts @relation(fields: [tenant_contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contract contracts @relation(fields: [contract_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   monthly_cost monthly_costs @relation(fields: [monthly_cost_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("contract_monthly_costs")

@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsDateString, IsEmail, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { TenantDto } from './tenant.dto';
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 
 export class CreateContractDto {
@@ -10,33 +10,48 @@ export class CreateContractDto {
   @Type(() => TenantDto)
   tenants: TenantDto[];
 
-  @IsString()
-  payment_cycle: string;
-
-  @IsString()
-  price_per_cycle: string;
-
-  @IsString()
-  electricity_type: string;
-
-  @IsString()
-  water_type: string;
-
-  @IsString()
-  electricity_price: string;
-
-  @IsString()
-  water_price: string;
+  @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  payment_cycle: number;
 
   @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  price_per_cycle: number;
+
+  @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  electricity_type: number;
+
+  @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  water_type: number;
+
+  @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  electricity_price: number;
+
+  @IsNumber()
+  @IsNotEmpty() 
+  @Type(() => Number)
+  water_price: number;
+
+  @IsNumber()
+  @IsNotEmpty() 
   @Type(() => Number)
   electricity_start: number;
 
   @IsNumber()
+  @IsNotEmpty() 
   @Type(() => Number)
   water_start: number;
 
   @IsNumber()
+  @IsNotEmpty() 
   @Type(() => Number)
   num_people: number;
 
@@ -51,8 +66,24 @@ export class CreateContractDto {
   end_date: string;
 
   @IsNumber()
+  @IsNotEmpty() 
   @Type(() => Number)
   room_id: number;
 }
 
 export class UpdateContractDto extends PartialType(CreateContractDto){}
+
+export class CreateContractWithImagesDto extends CreateContractDto {
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  electricityImage?: string;
+
+  @IsOptional()  
+  @IsString()
+  @ApiProperty({ required: false })
+  waterImage?: string;
+}
+
+
+export class UpdateContractWithImagesDto extends PartialType(CreateContractWithImagesDto) {}

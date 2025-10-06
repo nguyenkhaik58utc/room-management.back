@@ -11,8 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   UseFilters,
-  UploadedFiles,
-  Req,
+  UploadedFiles
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
@@ -21,8 +20,10 @@ import { CommonInterceptor } from '../../common/interceptors/common.interceptors
 import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
 import { ContractService } from './contract.service';
 import {
-  ContractDto,
-  UpdateContractDto
+  CreateContractDto,
+  CreateContractWithImagesDto,
+  UpdateContractDto,
+  UpdateContractWithImagesDto
 } from './dto/contract.dto';
 import {
   FileFieldsInterceptor,
@@ -41,26 +42,47 @@ export class ContractController {
   ) {}
 
   @Post()
-  @ApiBody({ type: ContractDto })
+  @ApiBody({ type: CreateContractDto })
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'thumbnails', maxCount: 1 },
-      { name: 'galleries', maxCount: 5 },
+      { name: 'electricityImages'},
+      { name: 'waterImages'},
     ]),
   )
   async create(
-    @Body(new ValidationPipe()) createContractDto: ContractDto,
+    @Body(new ValidationPipe()) createContractDto: CreateContractDto,
     @UploadedFiles()
     files: {
-      thumbnails?: Express.Multer.File[];
-      galleries?: Express.Multer.File[];
-    },
-    @Req() req: any,
+      electricityImages?: Express.Multer.File[];
+      waterImages?: Express.Multer.File[];
+    }
   ) {
-    
-    const user = req['user'];
-    
-    return await this.contractService.createContract(createContractDto);
+    const contract : CreateContractWithImagesDto= {...createContractDto};
+    if (files.electricityImages) {
+      for (const electricityImage of files?.electricityImages ?? []) {
+        const result = await this.s3Service.uploadFile(
+          electricityImage,
+          process.env.AWS_S3_BUCKET!,
+        );
+        if (!result.url) {
+          throw new Error('Failed to upload electricityImage');
+        }
+        contract.electricityImage = result.url;
+      }
+    }
+    if (files.waterImages) {
+      for (const waterImage of files?.waterImages ?? []) {
+        const result = await this.s3Service.uploadFile(
+          waterImage,
+          process.env.AWS_S3_BUCKET!,
+        );
+        if (!result.url) {
+          throw new Error('Failed to upload waterImage');
+        }
+        contract.waterImage = result.url;
+      }
+    }    
+    return await this.contractService.createContract(contract);
   }
 
   @Get()
@@ -79,8 +101,8 @@ export class ContractController {
   @ApiBody({ type: UpdateContractDto })
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'thumbnails', maxCount: 1 },
-      { name: 'galleries', maxCount: 5 },
+      { name: 'electricityImage'},
+      { name: 'waterImage'},
     ]),
   )
   async update(
@@ -88,12 +110,35 @@ export class ContractController {
     @Body(new ValidationPipe()) updateContractDto: UpdateContractDto,
     @UploadedFiles()
     files: {
-      thumbnails?: Express.Multer.File[];
-      galleries?: Express.Multer.File[];
-    },
-    @Req() req: any,
+      electricityImages?: Express.Multer.File[];
+      waterImages?: Express.Multer.File[];
+    }
   ) {
-    const user = req['user'];
+    const contract : UpdateContractWithImagesDto = {...updateContractDto};
+    if (files.electricityImages) {
+      for (const electricityImage of files?.electricityImages ?? []) {
+        const result = await this.s3Service.uploadFile(
+          electricityImage,
+          process.env.AWS_S3_BUCKET!,
+        );
+        if (!result.url) {
+          throw new Error('Failed to upload electricityImage');
+        }
+        contract.electricityImage = result.url;
+      }
+    }
+    if (files.waterImages) {
+      for (const waterImage of files?.waterImages ?? []) {
+        const result = await this.s3Service.uploadFile(
+          waterImage,
+          process.env.AWS_S3_BUCKET!,
+        );
+        if (!result.url) {
+          throw new Error('Failed to upload waterImage');
+        }
+        contract.waterImage = result.url;
+      }
+    } 
     return await this.contractService.updateContract(id, updateContractDto);
   }
 

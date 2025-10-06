@@ -9,6 +9,7 @@ import {
   RoomApartmentBaseDto,
   UpdateRoomApartmentBaseDto,
 } from './dto/room-apartment.dto';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class RoomApartmentService {
@@ -127,10 +128,34 @@ export class RoomApartmentService {
     }
   }
 
-  async getAllRoomApartmentById(id: number) {
-    return this.prisma.apartment_rooms.findMany({
-      where: { apartment_id: id },
-    });
+  async getAllRoomApartmentById(
+    id: number,
+    page: number = 1,
+    pageSize: number = Number(process.env.PAGE_SIZE ?? 10),
+    search?: string,
+  ) {
+    const skip = (page - 1) * pageSize;
+        const whereRoom = search
+          ? { room_num_bar: { contains: search, mode: Prisma.QueryMode.insensitive } }
+          : {};
+    
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.apartment_rooms.findMany({
+        where: whereRoom,
+        skip,
+        take: Number(pageSize)
+      }),
+      this.prisma.apartment_rooms.count({ where : whereRoom }),
+    ]);
+
+    return {
+      data: data.map((ap) => ({
+        ...ap
+      })),
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+    };
   }
 
   async getRoomApartmentById(id: number) {

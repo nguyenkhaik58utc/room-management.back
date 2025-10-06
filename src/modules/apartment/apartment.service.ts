@@ -2,6 +2,7 @@ import { S3Service } from './../s3/s3.service';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApartmentBaseDto, UpdateApartmentBaseDto } from './dto/apartment.dto';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class ApartmentService {
@@ -99,33 +100,43 @@ export class ApartmentService {
       throw new Error(`Update apartment failed: ${error.message}`);
     }
   }
+  async getApartments(
+    page: number = 1,
+    pageSize: number = Number(process.env.PAGE_SIZE ?? 10),
+    search?: string,
+  ) {
+    const skip = (page - 1) * pageSize;
+    const whereApartment = search
+      ? { name: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      : {};
 
-  async getApartments() {
-    const apartments = this.prisma.apartments.findMany({
-      include: {
-        rooms: {
-          include: {
-            contracts: true,
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.apartments.findMany({
+        where: whereApartment,
+        skip,
+        take: Number(pageSize),
+        include: {
+          rooms: {
+            include: { contracts: true },
           },
+          province: true,
+          district: true,
+          ward: true,
         },
-        province: true,
-        district: true,
-        ward: true,
-      },
-    });
+      }),
+      this.prisma.apartments.count({ where: whereApartment }),
+    ]);
 
-    return (await apartments).map((ap) => {
-      const totalRooms = ap.rooms.length;
-      const emptyRooms = ap.rooms.filter(
-        (r) => r.contracts.length === 0,
-      ).length;
-
-      return {
+    return {
+      data: data.map((ap) => ({
         ...ap,
-        totalRooms,
-        emptyRooms,
-      };
-    });
+        totalRooms: ap.rooms.length,
+        emptyRooms: ap.rooms.filter((r) => r.contracts.length === 0).length,
+      })),
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+    };
   }
 
   async getApartmentById(id: number) {

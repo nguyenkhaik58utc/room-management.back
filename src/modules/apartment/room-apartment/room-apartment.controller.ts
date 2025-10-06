@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   UseFilters,
   UploadedFiles,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
@@ -89,8 +90,8 @@ export class RoomApartmentController {
 
   @Get('/apartment/:id')
   @ApiParam({ name: 'id', type: Number })
-  async findAllByID(@Param('id', ParseIntPipe) id: number) {
-    return await this.roomApartmentService.getAllRoomApartmentById(id);
+  async findAllByID(@Param('id', ParseIntPipe) id: number, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search?: string) {
+    return await this.roomApartmentService.getAllRoomApartmentById(id, Number(page), Number(limit), search);
   }
 
   @Get('/room/:id')

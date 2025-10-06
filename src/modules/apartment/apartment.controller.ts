@@ -13,6 +13,7 @@ import {
   UseFilters,
   UploadedFiles,
   Req,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
@@ -95,8 +96,8 @@ export class ApartmentController {
   }
 
   @Get()
-  async findAll() {
-    return await this.apartmentService.getApartments();
+  async findAll(@Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search?: string) {
+    return await this.apartmentService.getApartments(Number(page), Number(limit), search);
   }
 
   @Get(':id')
