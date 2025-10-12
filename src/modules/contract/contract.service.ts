@@ -11,7 +11,7 @@ export class ContractService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly s3Service: S3Service,
-  ) {}
+  ) { }
 
   async createContract(createContractDto: CreateContractWithImagesDto) {
     return this.prisma.$transaction(async () => {
@@ -71,6 +71,8 @@ export class ContractService {
       } catch (error) {
         throw new Error(`Create contract failed: ${error.message}`);
       }
+    }, {
+      timeout: 15000,
     });
   }
 
@@ -178,6 +180,8 @@ export class ContractService {
           },
         },
       });
+    }, {
+      timeout: 15000,
     });
   }
 

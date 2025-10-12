@@ -30,7 +30,7 @@ export class TokenService {
       },
       {
         secret: process.env.JWT_KEY,
-        expiresIn: '15m',
+        expiresIn: '1d',
       },
     );
   }

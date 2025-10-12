@@ -28,7 +28,7 @@ export class AuthService {
       { name: name, email: email, password: password },
       {
         secret: process.env.JWT_KEY ?? 'xxx',
-        expiresIn: '15m',
+        expiresIn: '1d',
       },
     );
     const userEntity = new UserEntity(0, name, email, '', '');
@@ -96,7 +96,7 @@ export class AuthService {
       { email: email },
       {
         secret: process.env.JWT_KEY ?? 'xxx',
-        expiresIn: '15m',
+        expiresIn: '1d',
       },
     );
 
@@ -158,7 +158,7 @@ export class AuthService {
   async login(user: any) {
     const accessToken = this.jwtService.sign(user, {
       secret: process.env.JWT_KEY ?? 'xxx',
-      expiresIn: '15m',
+      expiresIn: '1d',
     });
 
     const refreshToken = this.jwtService.sign(user, {

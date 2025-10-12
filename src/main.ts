@@ -6,11 +6,18 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { CommonInterceptor } from './common/interceptors/common.interceptors';
 import cookieParser from 'cookie-parser';
 import { BigIntInterceptor } from './common/interceptors/bigInt.interceptor';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new CommonInterceptor(), new LoggingInterceptor(), new BigIntInterceptor());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
+    forbidNonWhitelisted: true
+  }));
   app.use(cookieParser());
   app.enableCors({
     origin: [
@@ -22,6 +29,12 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+  });
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use((req, res, next) => {
+    console.log('Before validation:', req.body);
+    next();
   });
 
   const config = new DocumentBuilder()

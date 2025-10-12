@@ -2,7 +2,7 @@ import { S3Service } from './../s3/s3.service';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApartmentBaseDto, UpdateApartmentBaseDto } from './dto/apartment.dto';
-import { Prisma } from 'generated/prisma';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ApartmentService {

@@ -9,7 +9,7 @@ import {
   RoomApartmentBaseDto,
   UpdateRoomApartmentBaseDto,
 } from './dto/room-apartment.dto';
-import { Prisma } from 'generated/prisma';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RoomApartmentService {
